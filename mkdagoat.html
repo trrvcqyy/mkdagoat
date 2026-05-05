@@ -1,0 +1,1116 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@400;700;800&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --surface2: #1c1c26;
+    --surface3: #252533;
+    --accent: #ff3cac;
+    --accent2: #7928ca;
+    --accent3: #00d4ff;
+    --text: #f0f0ff;
+    --muted: #8888aa;
+    --border: rgba(255,255,255,0.08);
+    --radius: 12px;
+    --font: 'Space Grotesk', sans-serif;
+    --font-display: 'Syne', sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    max-height: 900px;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .logo {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
+  }
+
+  .mode-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--surface2);
+    padding: 4px;
+    border-radius: 10px;
+  }
+
+  .mode-tab {
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    transition: all 0.2s;
+    font-family: var(--font);
+  }
+
+  .mode-tab.active {
+    background: var(--surface3);
+    color: var(--text);
+  }
+
+  /* Main layout */
+  .main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* Left panel - chat */
+  .chat-panel {
+    width: 380px;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--surface3) transparent;
+  }
+
+  .msg {
+    max-width: 92%;
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    font-size: 13.5px;
+    line-height: 1.6;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+  .msg.ai {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    align-self: flex-start;
+  }
+
+  .msg.user {
+    background: linear-gradient(135deg, #2d1b4e, #1a1a3e);
+    border: 1px solid rgba(121,40,202,0.3);
+    align-self: flex-end;
+  }
+
+  .msg .label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .msg.ai .label { color: var(--accent3); }
+  .msg.user .label { color: var(--accent); }
+
+  /* Input area */
+  .input-area {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .quick-prompts {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+
+  .qp {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: var(--font);
+  }
+
+  .qp:hover { border-color: var(--accent); color: var(--text); }
+
+  .input-row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+  }
+
+  .msg-input {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 13.5px;
+    padding: 10px 14px;
+    resize: none;
+    min-height: 42px;
+    max-height: 120px;
+    outline: none;
+    transition: border-color 0.2s;
+    line-height: 1.5;
+  }
+
+  .msg-input:focus { border-color: rgba(121,40,202,0.5); }
+  .msg-input::placeholder { color: var(--muted); }
+
+  .send-btn {
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    border: none;
+    border-radius: 10px;
+    width: 42px;
+    height: 42px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+
+  .send-btn:hover { opacity: 0.85; }
+  .send-btn:active { transform: scale(0.95); }
+
+  .send-btn svg { width: 18px; height: 18px; fill: white; }
+
+  /* Right panel - canvas */
+  .canvas-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .canvas-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+
+  .tool-btn {
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--muted);
+    font-family: var(--font);
+    transition: all 0.2s;
+  }
+
+  .tool-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+  .tool-btn.active { background: var(--surface3); color: var(--text); border-color: rgba(121,40,202,0.4); }
+
+  .canvas-area {
+    flex: 1;
+    overflow: auto;
+    padding: 20px;
+    background: #070710;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    scrollbar-width: thin;
+  }
+
+  /* Preview container - TikTok format (9:16) */
+  .preview-wrap {
+    position: relative;
+    width: 320px;
+    aspect-ratio: 9/16;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 0 60px rgba(121,40,202,0.3), 0 0 120px rgba(0,212,255,0.1);
+    flex-shrink: 0;
+  }
+
+  .preview-frame {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Edit output display */
+  .edit-output {
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+
+  /* Layers panel */
+  .layers-panel {
+    width: 200px;
+    border-left: 1px solid var(--border);
+    background: var(--surface);
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .layers-header {
+    padding: 12px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .layers-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+  }
+
+  .layer-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-size: 12px;
+  }
+
+  .layer-item:hover { background: var(--surface2); }
+  .layer-item.selected { background: var(--surface3); color: var(--text); }
+
+  .layer-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+
+  .layer-name { flex: 1; color: var(--muted); }
+  .layer-item.selected .layer-name { color: var(--text); }
+
+  /* Photo upload zone */
+  .photo-upload {
+    margin: 8px;
+    border: 1.5px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .photo-upload:hover { border-color: var(--accent2); color: var(--text); }
+
+  .photo-upload input { display: none; }
+
+  /* Loading spinner */
+  .spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-top-color: var(--accent3);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Tiktok template styles */
+  .tpl-base {
+    width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    font-family: var(--font);
+  }
+
+  .element-layer {
+    position: absolute;
+    cursor: move;
+    user-select: none;
+  }
+
+  .element-layer.selected {
+    outline: 2px solid var(--accent3);
+    outline-offset: 2px;
+  }
+
+  .resize-handle {
+    position: absolute;
+    width: 10px; height: 10px;
+    background: var(--accent3);
+    border-radius: 50%;
+    bottom: -5px; right: -5px;
+    cursor: se-resize;
+    display: none;
+  }
+
+  .element-layer.selected .resize-handle { display: block; }
+
+  .canvas-right {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* Template info */
+  .template-info {
+    padding: 10px 14px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+
+  .export-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    float: right;
+    margin-top: -2px;
+  }
+
+  .export-btn:hover { opacity: 0.85; }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2px 8px;
+    font-size: 11px;
+    color: var(--muted);
+    margin: 2px;
+  }
+
+  .property-panel {
+    padding: 8px;
+    border-top: 1px solid var(--border);
+  }
+
+  .prop-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .prop-row input[type="range"] {
+    flex: 1;
+    height: 3px;
+  }
+
+  .prop-row input[type="color"] {
+    width: 24px; height: 24px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    background: none;
+  }
+
+  .prop-label { width: 50px; flex-shrink: 0; }
+  .prop-val { width: 30px; text-align: right; color: var(--text); }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="header">
+    <div class="logo">EDITAI</div>
+    <div class="mode-tabs">
+      <button class="mode-tab active" onclick="setMode('chat')">AI Chat</button>
+      <button class="mode-tab" onclick="setMode('template')">Template</button>
+      <button class="mode-tab" onclick="setMode('layers')">Layers</button>
+    </div>
+    <div style="font-size:11px;color:var(--muted)">TikTok Studio</div>
+  </div>
+
+  <div class="main">
+    <!-- Chat Panel -->
+    <div class="chat-panel">
+      <div class="messages" id="messages">
+        <div class="msg ai">
+          <div class="label">EditAI</div>
+          What kind of edit do you want? Tell me anything — a vibe, a trend, a caption style, a color palette, a transition idea. I'll build it live on the right ✦
+        </div>
+      </div>
+
+      <div class="input-area">
+        <div class="quick-prompts">
+          <span class="qp" onclick="quickPrompt('Dark moody cinematic edit')">🎬 Cinematic</span>
+          <span class="qp" onclick="quickPrompt('Neon aesthetic with glitch effects')">⚡ Neon Glitch</span>
+          <span class="qp" onclick="quickPrompt('Minimal clean white aesthetic')">🤍 Minimal</span>
+          <span class="qp" onclick="quickPrompt('Add a trending caption overlay')">✍️ Caption</span>
+          <span class="qp" onclick="quickPrompt('Gradient sunset color grade')">🌅 Sunset</span>
+          <span class="qp" onclick="quickPrompt('Beat sync edit with flashing cuts')">🎵 Beat Sync</span>
+        </div>
+        <div class="input-row">
+          <textarea class="msg-input" id="userInput" placeholder="Describe your edit idea..." rows="1"
+            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"
+            oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
+          <button class="send-btn" onclick="sendMessage()">
+            <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Canvas + Layers -->
+    <div class="canvas-panel">
+      <div class="canvas-toolbar">
+        <button class="tool-btn" onclick="addTextLayer()">+ Text</button>
+        <button class="tool-btn" onclick="addShapeLayer()">+ Shape</button>
+        <button class="tool-btn" onclick="triggerPhotoAdd()">+ Photo</button>
+        <button class="tool-btn" onclick="clearLayers()" style="margin-left:auto">Clear</button>
+        <button class="tool-btn active" id="snapBtn" onclick="toggleSnap()">Snap ✓</button>
+        <input type="file" id="photoFile" accept="image/*" style="display:none" onchange="handlePhotoUpload(event)">
+      </div>
+
+      <div class="canvas-right">
+        <!-- Preview -->
+        <div class="canvas-area">
+          <div>
+            <div class="preview-wrap" id="previewWrap">
+              <div class="preview-frame" id="previewFrame">
+                <div id="editCanvas" style="width:100%;height:100%;position:relative;background:#0a0a0f;overflow:hidden"></div>
+              </div>
+            </div>
+            <div class="template-info">
+              <span id="tplName">9:16 · TikTok Format</span>
+              <button class="export-btn" onclick="exportTemplate()">⬇ Save HTML</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Layers panel -->
+        <div class="layers-panel" id="layersPanel">
+          <div class="layers-header">Layers</div>
+          <div class="layers-list" id="layersList">
+            <div style="padding:20px;text-align:center;font-size:12px;color:var(--muted)">No layers yet.<br>Generate an edit or add elements.</div>
+          </div>
+          <label class="photo-upload" for="photoFile">
+            <div style="font-size:20px;margin-bottom:6px">📷</div>
+            Drop photo or click to upload
+          </label>
+          <div class="property-panel" id="propPanel" style="display:none">
+            <div class="prop-row">
+              <span class="prop-label">Opacity</span>
+              <input type="range" min="0" max="100" value="100" id="opacitySlider" oninput="updateProp('opacity',this.value)">
+              <span class="prop-val" id="opacityVal">100</span>
+            </div>
+            <div class="prop-row">
+              <span class="prop-label">Scale</span>
+              <input type="range" min="20" max="300" value="100" id="scaleSlider" oninput="updateProp('scale',this.value)">
+              <span class="prop-val" id="scaleVal">100</span>
+            </div>
+            <div class="prop-row">
+              <span class="prop-label">Color</span>
+              <input type="color" id="colorPicker" value="#ffffff" oninput="updateProp('color',this.value)">
+              <span style="flex:1"></span>
+              <button class="tool-btn" style="padding:3px 8px;font-size:11px" onclick="deleteSelected()">Delete</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_URL = "https://api.anthropic.com/v1/messages";
+let layers = [];
+let selectedLayer = null;
+let snapEnabled = true;
+let dragState = null;
+let currentMode = 'chat';
+
+const SYSTEM_PROMPT = `You are EditAI, an expert TikTok video editor and creative director. You help users create stunning visual templates for TikTok, Instagram Reels, and short-form content.
+
+When a user describes an edit idea, you MUST respond in two parts:
+1. A brief, enthusiastic description (2-3 sentences max) of the edit concept
+2. A JSON block wrapped in \`\`\`json ... \`\`\` with this EXACT structure:
+
+\`\`\`json
+{
+  "name": "Template name",
+  "background": "CSS background value (gradient, color, etc)",
+  "overlayEffect": "CSS for overlay div (optional gradient overlay)",
+  "elements": [
+    {
+      "id": "unique_id",
+      "type": "text|shape|image_placeholder",
+      "content": "text content or shape description",
+      "x": 10, "y": 10,
+      "width": 280, "height": 80,
+      "style": {
+        "color": "#ffffff",
+        "fontSize": "28px",
+        "fontWeight": "700",
+        "fontFamily": "'Syne', sans-serif",
+        "textAlign": "center",
+        "background": "optional bg",
+        "borderRadius": "optional",
+        "padding": "optional",
+        "opacity": 1,
+        "letterSpacing": "optional",
+        "textTransform": "optional",
+        "mixBlendMode": "optional",
+        "border": "optional",
+        "backdropFilter": "optional",
+        "boxShadow": "optional",
+        "textShadow": "optional",
+        "animation": "optional CSS animation name"
+      }
+    }
+  ],
+  "animations": "optional CSS @keyframes definitions as a single string"
+}
+\`\`\`
+
+Think creatively! Use:
+- Beautiful gradients for backgrounds
+- Cinematic color grades (deep teals, warm oranges, neon purples)  
+- Trendy fonts and typography
+- Glass morphism effects
+- Overlay textures
+- Bold caption styles TikTok creators use
+- Aesthetic elements like lines, shapes, badges
+
+Always make it look stunning and ready to use.`;
+
+async function callAI(userMsg, history) {
+  const messages = [...history, { role: "user", content: userMsg }];
+  
+  const res = await fetch(API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 1000,
+      system: SYSTEM_PROMPT,
+      messages
+    })
+  });
+
+  if (!res.ok) throw new Error(`API error ${res.status}`);
+  const data = await res.json();
+  return data.content.map(b => b.text || "").join("");
+}
+
+let chatHistory = [];
+
+async function sendMessage() {
+  const input = document.getElementById("userInput");
+  const text = input.value.trim();
+  if (!text) return;
+  
+  input.value = "";
+  input.style.height = "auto";
+  
+  addMessage("user", text);
+  
+  const loadingMsg = addMessage("ai", '<span class="spinner"></span> Generating your edit...');
+  
+  try {
+    const response = await callAI(text, chatHistory);
+    
+    chatHistory.push({ role: "user", content: text });
+    chatHistory.push({ role: "assistant", content: response });
+    
+    // Keep history manageable
+    if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
+    
+    // Extract JSON template
+    const jsonMatch = response.match(/```json\s*([\s\S]*?)```/);
+    const description = response.replace(/```json[\s\S]*?```/g, "").trim();
+    
+    loadingMsg.innerHTML = `<div class="label">EditAI</div>${description || "Here's your edit!"}`;
+    
+    if (jsonMatch) {
+      try {
+        const tpl = JSON.parse(jsonMatch[1]);
+        applyTemplate(tpl);
+      } catch(e) {
+        loadingMsg.innerHTML += `<br><span style="color:var(--muted);font-size:11px">Template parse error — try rephrasing</span>`;
+      }
+    }
+  } catch(e) {
+    loadingMsg.innerHTML = `<div class="label">EditAI</div>Connection issue. Make sure you're in the Claude artifact environment.`;
+  }
+  
+  scrollMessages();
+}
+
+function addMessage(role, content) {
+  const msgs = document.getElementById("messages");
+  const div = document.createElement("div");
+  div.className = `msg ${role}`;
+  if (role === "ai") div.innerHTML = `<div class="label">EditAI</div>${content}`;
+  else div.innerHTML = `<div class="label">You</div>${content}`;
+  msgs.appendChild(div);
+  scrollMessages();
+  return div;
+}
+
+function scrollMessages() {
+  const msgs = document.getElementById("messages");
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function quickPrompt(text) {
+  document.getElementById("userInput").value = text;
+  sendMessage();
+}
+
+function applyTemplate(tpl) {
+  const canvas = document.getElementById("editCanvas");
+  
+  // Apply background
+  canvas.style.background = tpl.background || "#0a0a0f";
+  
+  // Clear existing generated layers (keep user-added photos)
+  layers = layers.filter(l => l.userAdded);
+  
+  // Add overlay effect
+  let overlay = canvas.querySelector(".overlay-effect");
+  if (overlay) overlay.remove();
+  if (tpl.overlayEffect) {
+    overlay = document.createElement("div");
+    overlay.className = "overlay-effect";
+    overlay.style.cssText = `position:absolute;inset:0;pointer-events:none;z-index:1;${tpl.overlayEffect}`;
+    canvas.appendChild(overlay);
+  }
+  
+  // Inject animations
+  let styleTag = document.getElementById("tpl-animations");
+  if (!styleTag) {
+    styleTag = document.createElement("style");
+    styleTag.id = "tpl-animations";
+    document.head.appendChild(styleTag);
+  }
+  styleTag.textContent = tpl.animations || "";
+  
+  // Add elements as layers
+  if (tpl.elements) {
+    tpl.elements.forEach(el => {
+      const layer = {
+        id: el.id || Date.now() + Math.random(),
+        type: el.type || "text",
+        content: el.content || "",
+        x: el.x || 10,
+        y: el.y || 10,
+        width: el.width || 200,
+        height: el.height || 60,
+        style: el.style || {},
+        generated: true
+      };
+      layers.push(layer);
+    });
+  }
+  
+  document.getElementById("tplName", tpl.name);
+  if (tpl.name) {
+    document.getElementById("tplName").textContent = tpl.name + " · 9:16";
+  }
+  
+  renderLayers();
+}
+
+function renderLayers() {
+  const canvas = document.getElementById("editCanvas");
+  
+  // Remove existing layer elements
+  canvas.querySelectorAll(".element-layer").forEach(el => el.remove());
+  
+  // Render each layer
+  layers.forEach((layer, i) => {
+    const el = document.createElement("div");
+    el.className = "element-layer" + (selectedLayer === layer.id ? " selected" : "");
+    el.dataset.id = layer.id;
+    
+    el.style.cssText = `
+      left: ${layer.x}px; top: ${layer.y}px;
+      width: ${layer.width}px; height: ${layer.height}px;
+      position: absolute; cursor: move; z-index: ${i + 2};
+    `;
+    
+    // Apply layer styles
+    if (layer.style) {
+      Object.entries(layer.style).forEach(([k, v]) => {
+        if (v !== null && v !== undefined && v !== "") {
+          el.style[k] = v;
+        }
+      });
+    }
+    
+    if (layer.type === "text") {
+      el.style.display = "flex";
+      el.style.alignItems = "center";
+      el.style.justifyContent = layer.style?.textAlign === "left" ? "flex-start" : "center";
+      el.textContent = layer.content;
+    } else if (layer.type === "image_placeholder" || layer.type === "image") {
+      if (layer.imageData) {
+        const img = document.createElement("img");
+        img.src = layer.imageData;
+        img.style.cssText = "width:100%;height:100%;object-fit:cover;border-radius:inherit;";
+        el.appendChild(img);
+      } else {
+        el.style.background = "rgba(255,255,255,0.05)";
+        el.style.border = "1.5px dashed rgba(255,255,255,0.2)";
+        el.style.display = "flex";
+        el.style.alignItems = "center";
+        el.style.justifyContent = "center";
+        el.style.color = "rgba(255,255,255,0.4)";
+        el.style.fontSize = "13px";
+        el.style.borderRadius = layer.style?.borderRadius || "8px";
+        el.innerHTML = `<div style="text-align:center"><div style="font-size:24px;margin-bottom:6px">📷</div>Photo slot<br><span style="font-size:10px;opacity:0.6">Upload from sidebar</span></div>`;
+      }
+    } else if (layer.type === "shape") {
+      // shape is styled via CSS already
+    }
+    
+    const handle = document.createElement("div");
+    handle.className = "resize-handle";
+    el.appendChild(handle);
+    
+    // Drag to move
+    el.addEventListener("mousedown", (e) => {
+      if (e.target === handle) return;
+      e.stopPropagation();
+      selectLayer(layer.id);
+      const rect = canvas.getBoundingClientRect();
+      const startX = e.clientX - layer.x * (rect.width / 320);
+      const startY = e.clientY - layer.y * (rect.height / canvas.offsetHeight);
+      
+      const onMove = (ev) => {
+        const canvasRect = canvas.getBoundingClientRect();
+        const scaleX = 320 / canvasRect.width;
+        const scaleY = canvas.offsetHeight / canvasRect.height;
+        let nx = (ev.clientX - startX) * scaleX;
+        let ny = (ev.clientY - startY) * scaleY;
+        if (snapEnabled) { nx = Math.round(nx / 10) * 10; ny = Math.round(ny / 10) * 10; }
+        layer.x = Math.max(0, Math.min(320 - layer.width, nx));
+        layer.y = Math.max(0, ny);
+        el.style.left = layer.x + "px";
+        el.style.top = layer.y + "px";
+      };
+      
+      const onUp = () => {
+        document.removeEventListener("mousemove", onMove);
+        document.removeEventListener("mouseup", onUp);
+      };
+      
+      document.addEventListener("mousemove", onMove);
+      document.addEventListener("mouseup", onUp);
+    });
+    
+    // Resize handle
+    handle.addEventListener("mousedown", (e) => {
+      e.stopPropagation();
+      const startW = layer.width, startH = layer.height;
+      const startX = e.clientX, startY = e.clientY;
+      const canvasRect = canvas.getBoundingClientRect();
+      const scaleX = 320 / canvasRect.width;
+      
+      const onMove = (ev) => {
+        layer.width = Math.max(40, startW + (ev.clientX - startX) * scaleX);
+        layer.height = Math.max(20, startH + (ev.clientY - startY) * scaleX);
+        el.style.width = layer.width + "px";
+        el.style.height = layer.height + "px";
+      };
+      
+      const onUp = () => {
+        document.removeEventListener("mousemove", onMove);
+        document.removeEventListener("mouseup", onUp);
+      };
+      
+      document.addEventListener("mousemove", onMove);
+      document.addEventListener("mouseup", onUp);
+    });
+    
+    canvas.appendChild(el);
+  });
+  
+  renderLayersList();
+}
+
+function selectLayer(id) {
+  selectedLayer = id;
+  renderLayers();
+  
+  const layer = layers.find(l => l.id === id);
+  const panel = document.getElementById("propPanel");
+  if (layer) {
+    panel.style.display = "block";
+    document.getElementById("opacitySlider").value = (parseFloat(layer.style?.opacity || 1) * 100);
+    document.getElementById("opacityVal").textContent = Math.round(parseFloat(layer.style?.opacity || 1) * 100);
+    document.getElementById("scaleSlider").value = 100;
+  }
+}
+
+function updateProp(prop, val) {
+  if (!selectedLayer) return;
+  const layer = layers.find(l => l.id === selectedLayer);
+  if (!layer) return;
+  
+  if (prop === "opacity") {
+    layer.style = layer.style || {};
+    layer.style.opacity = val / 100;
+    document.getElementById("opacityVal").textContent = val;
+  } else if (prop === "scale") {
+    layer.width = (layer.origWidth || layer.width) * val / 100;
+    layer.height = (layer.origHeight || layer.height) * val / 100;
+    document.getElementById("scaleVal").textContent = val;
+  } else if (prop === "color") {
+    layer.style = layer.style || {};
+    layer.style.color = val;
+  }
+  
+  renderLayers();
+}
+
+function renderLayersList() {
+  const list = document.getElementById("layersList");
+  if (layers.length === 0) {
+    list.innerHTML = '<div style="padding:20px;text-align:center;font-size:12px;color:var(--muted)">No layers yet.<br>Generate an edit or add elements.</div>';
+    return;
+  }
+  
+  list.innerHTML = [...layers].reverse().map((l, i) => {
+    const icons = { text: "T", shape: "◼", image: "📷", image_placeholder: "📷" };
+    const colors = { text: "#7928ca", shape: "#ff3cac", image: "#00d4ff", image_placeholder: "#00d4ff" };
+    const icon = icons[l.type] || "◼";
+    const color = colors[l.type] || "#888";
+    return `<div class="layer-item ${selectedLayer === l.id ? "selected" : ""}" onclick="selectLayer('${l.id}')">
+      <div class="layer-icon" style="background:${color}22;color:${color}">${icon}</div>
+      <span class="layer-name">${l.content ? l.content.substring(0,14) : l.type}</span>
+    </div>`;
+  }).join("");
+}
+
+function addTextLayer() {
+  const layer = {
+    id: "text_" + Date.now(),
+    type: "text",
+    content: "Your text here",
+    x: 20, y: 40,
+    width: 280, height: 60,
+    style: { color: "#ffffff", fontSize: "22px", fontWeight: "700", fontFamily: "'Syne', sans-serif", textAlign: "center" },
+    userAdded: true
+  };
+  layers.push(layer);
+  renderLayers();
+  selectLayer(layer.id);
+}
+
+function addShapeLayer() {
+  const layer = {
+    id: "shape_" + Date.now(),
+    type: "shape",
+    content: "",
+    x: 80, y: 80,
+    width: 160, height: 160,
+    style: { background: "linear-gradient(135deg, #7928ca, #ff3cac)", borderRadius: "50%", opacity: 0.7 },
+    userAdded: true
+  };
+  layers.push(layer);
+  renderLayers();
+  selectLayer(layer.id);
+}
+
+function triggerPhotoAdd() {
+  document.getElementById("photoFile").click();
+}
+
+function handlePhotoUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    // Check if there's an empty image placeholder
+    const placeholder = layers.find(l => l.type === "image_placeholder" && !l.imageData);
+    
+    if (placeholder) {
+      placeholder.imageData = e.target.result;
+      placeholder.type = "image";
+    } else {
+      const layer = {
+        id: "img_" + Date.now(),
+        type: "image",
+        content: "",
+        x: 10, y: 10,
+        width: 300, height: 300,
+        style: { borderRadius: "12px" },
+        imageData: e.target.result,
+        userAdded: true
+      };
+      layers.push(layer);
+    }
+    
+    renderLayers();
+    addMessage("ai", `<div class="label">EditAI</div>📷 Photo added! You can drag it to position or ask me to style it — e.g. "Make the photo a circle in the top half" or "Add a gradient overlay on the photo"`);
+    event.target.value = "";
+  };
+  reader.readAsDataURL(file);
+}
+
+function deleteSelected() {
+  layers = layers.filter(l => l.id !== selectedLayer);
+  selectedLayer = null;
+  document.getElementById("propPanel").style.display = "none";
+  renderLayers();
+}
+
+function clearLayers() {
+  layers = [];
+  selectedLayer = null;
+  document.getElementById("editCanvas").style.background = "#0a0a0f";
+  document.getElementById("editCanvas").querySelectorAll(".element-layer,.overlay-effect").forEach(e => e.remove());
+  document.getElementById("propPanel").style.display = "none";
+  renderLayersList();
+}
+
+function toggleSnap() {
+  snapEnabled = !snapEnabled;
+  document.getElementById("snapBtn").textContent = snapEnabled ? "Snap ✓" : "Snap";
+  document.getElementById("snapBtn").classList.toggle("active", snapEnabled);
+}
+
+function setMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll(".mode-tab").forEach((t, i) => {
+    t.classList.toggle("active", ["chat","template","layers"][i] === mode);
+  });
+  
+  const layersPanel = document.getElementById("layersPanel");
+  const chatPanel = document.querySelector(".chat-panel");
+  
+  if (mode === "layers") {
+    layersPanel.style.display = "flex";
+    chatPanel.style.display = "none";
+  } else if (mode === "template") {
+    layersPanel.style.display = "none";
+    chatPanel.style.display = "flex";
+  } else {
+    layersPanel.style.display = "flex";
+    chatPanel.style.display = "flex";
+  }
+}
+
+function exportTemplate() {
+  const canvas = document.getElementById("editCanvas");
+  const layers_data = JSON.stringify(layers);
+  const bg = canvas.style.background;
+  
+  const html = `<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<title>EditAI Template</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#000;display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:'Space Grotesk',sans-serif;}
+.frame{width:375px;height:667px;position:relative;overflow:hidden;background:${bg};}
+.el{position:absolute;}
+</style></head><body>
+<div class="frame" id="frame">${canvas.innerHTML}</div>
+<script>
+const layers = ${layers_data};
+</script>
+</body></html>`;
+  
+  const blob = new Blob([html], { type: "text/html" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "editai-template.html"; a.click();
+  URL.revokeObjectURL(url);
+}
+
+// Click on canvas deselects
+document.getElementById("editCanvas").addEventListener("click", (e) => {
+  if (e.target === document.getElementById("editCanvas")) {
+    selectedLayer = null;
+    document.getElementById("propPanel").style.display = "none";
+    renderLayers();
+  }
+});
+</script>
+</body>
+</html>
